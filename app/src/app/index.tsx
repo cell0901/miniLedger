@@ -1,9 +1,9 @@
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Image, Modal, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Brand, Button, c, ErrorNotice, s } from '@/components/ledger-ui';
-import { api } from '@/lib/api';
+import { api, API_URL } from '@/lib/api';
 import { dateLabel, isOverdue, money } from '@/lib/format';
 import { session } from '@/lib/session';
 import type { Loan, Summary } from '@/lib/types';
@@ -20,6 +20,8 @@ export default function HomeScreen() {
   const [filter, setFilter] = useState<Filter>('All');
   const [repaying, setRepaying] = useState<string | null>(null);
   const [actionError, setActionError] = useState('');
+  const [receiptId, setReceiptId] = useState<string | null>(null);
+  const [receiptError, setReceiptError] = useState('');
 
   // Like useEffect, but also runs when we return from the add-loan screen.
   // useCallback keeps the focus listener from restarting on every render.
@@ -225,6 +227,11 @@ export default function HomeScreen() {
                   </Text>
                 )}
               </View>
+              {item.receiptPath && (
+                <Pressable accessibilityRole="button" onPress={() => { setReceiptError(''); setReceiptId(item.id); }} style={styles.repay}>
+                  <Text style={styles.repayText}>View receipt  ↗</Text>
+                </Pressable>
+              )}
             </View>
           );
         }}
@@ -247,6 +254,17 @@ export default function HomeScreen() {
           </View>
         }
       />
+      <Modal visible={receiptId !== null} animationType="slide" onRequestClose={() => setReceiptId(null)}>
+        <SafeAreaView style={[s.screen, { padding: 24, gap: 20 }]}>
+          <Button label="Close receipt" secondary onPress={() => setReceiptId(null)} />
+          <ErrorNotice message={receiptError} />
+          {receiptId && <Image
+            source={{ uri: `${API_URL}/loans/${receiptId}/receipt`, headers: { Authorization: 'Bearer ' + session.token } }}
+            style={{ flex: 1 }} resizeMode="contain" accessibilityLabel="Loan receipt"
+            onError={() => setReceiptError('Could not open the receipt. Close it and try again.')}
+          />}
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -6,9 +6,9 @@ An Expo Go app for money lent to friends. The UI follows the Wise-inspired `desi
 
 - **Login** (`src/app/login.tsx`): phone number, mock OTP verification, resend, and change number.
 - **Ledger** (`src/app/index.tsx`): summary, loan list, pending/overdue/repaid filters, pull to refresh, and confirmed repayment.
-- **Add loan** (`src/app/add-loan.tsx`): friend name, amount, due date, and date shortcuts.
+- **Add loan** (`src/app/add-loan.tsx`): friend name, amount, due date, date shortcuts, and an optional receipt photo.
 
-All three screens handle iPhone safe areas. Forms handle the keyboard, loading, errors, and basic input validation. Entries use the existing backend APIs; receipt uploads are outside this version.
+All three screens handle iPhone safe areas. Forms handle the keyboard, loading, errors, and basic input validation. Choose a receipt from the photo library, preview or remove it before saving, and open it later from its loan entry. Receipts support JPEG, PNG and WebP up to 5 MB.
 
 ## How the code works
 
@@ -19,7 +19,7 @@ There is no context provider or custom ledger hook. Each screen uses ordinary Re
 3. `index.tsx` owns the `loans`, `summary`, `loading`, and `error` state. `loadLedger()` fetches loans and totals and calls the state setters. `repay()` updates a loan, then reloads that data.
 4. `add-loan.tsx` owns its form state. `save()` validates the inputs, sends the loan, and goes back.
 5. Home uses Expo Router's `useFocusEffect` to load data when it becomes visible, including after adding a loan. Think of it as `useEffect` for screen visits. `useCallback` keeps that listener stable between renders.
-6. `lib/api.ts` is a small `fetch` wrapper: it adds JSON headers and the optional token, sends the request, and returns `{ ok, status, data }`. Screens check `ok` for success and show `data.message` for backend errors. Network errors are caught by the screen's `try/catch`; a timeout prevents endless loading.
+6. `lib/api.ts` is a small `fetch` wrapper: it sends JSON or `FormData` and the optional token, then returns `{ ok, status, data }`. Photos use `FormData`, so `fetch` sets the multipart content type automatically. Screens check `ok` for success and show `data.message` for backend errors. Network errors are caught by the screen's `try/catch`; a timeout prevents endless loading.
 7. `lib/types.ts` describes backend responses; `lib/format.ts` contains plain functions for money, dates, and overdue checks. `components/ledger-ui.tsx` contains the shared visual components and styles.
 
 For React Native, `View` is the layout container, `Text` displays text, `TextInput` collects input, and `Pressable` handles taps. Home uses `FlatList` to render entries; forms use `ScrollView` inside a safe area and keyboard-aware container.

@@ -10,7 +10,7 @@ export const verifyOtpSchema = z.object({
 })
 
 export const addLoanSchema = z.object({
-  friendName: z.string().min(1),
-  amount: z.number().positive(), // > 0
+  friendName: z.string().trim().min(1),
+  amount: z.coerce.number().positive(), // Multipart form fields arrive as strings.
   dueDate: z.coerce.date(), // converts if date is sent in string over JSON schema body
 })

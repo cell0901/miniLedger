@@ -19,6 +19,7 @@ CREATE TABLE "Loan" (
     "status" "LoanStatus" NOT NULL DEFAULT 'PENDING',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "repaidAt" TIMESTAMP(3),
+    "receiptPath" TEXT,
 
     CONSTRAINT "Loan_pkey" PRIMARY KEY ("id")
 );

@@ -1,6 +1,8 @@
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { File } from 'expo-file-system';
 import { Button, c, ErrorNotice, Field, Screen, s } from '@/components/ledger-ui';
 import { session } from '@/lib/session';
 import { api } from '@/lib/api';
@@ -23,10 +25,31 @@ export default function AddLoanScreen() {
   const [date, setDate] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [receipt, setReceipt] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   if (!session.token) return <Redirect href="./login" />;
   const goBack = () => router.canGoBack() ? router.back() : router.replace('/');
   const validDate = isValidDate(date);
+
+  async function pickReceipt() {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.7,
+        preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
+      });
+      if (result.canceled) return;
+      const photo = result.assets[0];
+      if (photo.fileSize && photo.fileSize > 5 * 1024 * 1024) {
+        setError('Receipt must be 5 MB or smaller.');
+        return;
+      }
+      setReceipt(photo);
+      setError('');
+    } catch {
+      setError('Could not open your photos. Please try again.');
+    }
+  }
 
   async function save() { // post /loans
     const value = Number(amount);
@@ -40,11 +63,25 @@ export default function AddLoanScreen() {
     setBusy(true);
     setError('');
     try {
-      const result = await api('/loans', 'POST', {
+      const loan = {
         friendName: name.trim(),
         amount: value,
         dueDate: date,
-      }, session.token);
+      };
+      // Keep sending JSON when there is no photo. A photo needs FormData.
+      let body: object = loan;
+      if (receipt) {
+        const form = new FormData();
+        form.append('friendName', loan.friendName);
+        form.append('amount', String(loan.amount));
+        form.append('dueDate', loan.dueDate);
+        // Expo fetch needs a File containing the photo, not a plain URI object.
+        // The picker already supplies a File on web; native uses the local URI.
+        const photo = receipt.file || new File(receipt.uri);
+        form.append('receipt', photo);
+        body = form;
+      }
+      const result = await api('/loans', 'POST', body, session.token);
       if (result.status === 401) {
         session.token = '';
         session.phone = '';
@@ -114,6 +151,17 @@ export default function AddLoanScreen() {
         )}
       </View>
 
+      <View style={s.card}>
+        <View style={s.row}>
+          <Text style={s.label}>Receipt</Text>
+          <Text style={s.caption}>Optional · up to 5 MB</Text>
+        </View>
+        {receipt && <Image source={{ uri: receipt.uri }} style={styles.receiptImage} resizeMode="contain" accessibilityLabel="Selected receipt" />}
+        <Button label={receipt ? 'Choose another photo' : '+  Attach a receipt'} secondary disabled={busy} onPress={() => void pickReceipt()} />
+        {receipt && <Pressable accessibilityRole="button" disabled={busy} onPress={() => setReceipt(null)} style={styles.cancel}><Text style={styles.cancelText}>Remove photo</Text></Pressable>}
+        <Text style={s.caption}>Choose a JPEG, PNG or WebP photo of a bill or payment confirmation.</Text>
+      </View>
+
       <View style={styles.preview}>
         <View style={s.row}>
           <View style={[styles.pendingBadge, validDate && date < utcToday() && { backgroundColor: c.negativeBg }]}>
@@ -142,6 +190,7 @@ export default function AddLoanScreen() {
 }
 
 const styles = StyleSheet.create({
+  receiptImage: { width: '100%', height: 200, borderRadius: 12, backgroundColor: c.canvas },
   back: { fontSize: 25, color: c.ink },
   step: { width: 56, alignItems: 'flex-end' },
   stepText: { fontSize: 10, color: c.body, fontWeight: '600', letterSpacing: 1 },

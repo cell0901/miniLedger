@@ -69,13 +69,6 @@ To check connectivity from a phone, open `http://YOUR_COMPUTER_WIFI_IP:3000/api/
 
 ## Checks
 
-With PostgreSQL running and port 3000 free, run from `backend/`:
-
-```sh
-npm run typecheck
-node scripts/smoke-test.cjs
-```
-
-The smoke test starts the backend, checks login, loans, repayment, summaries, and user isolation, then removes its test data. App types can be checked with `npx tsc --noEmit` from `app/`.
+Loan entries can include an optional receipt photo (JPEG, PNG or WebP, up to 5 MB). Files are stored in `backend/uploads/receipts/`; PostgreSQL stores their paths. Only the loan owner can open a receipt. Keep this folder on persistent storage if deploying the backend.
 
 Amounts are displayed in INR. Overdue dates use UTC and exclude loans due today. Login is kept in memory, so a full app reload requires another OTP; saved entries remain in PostgreSQL.

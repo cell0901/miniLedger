@@ -8,6 +8,7 @@ export type Loan = {
   status: 'PENDING' | 'REPAID';
   createdAt: string;
   repaidAt: string | null;
+  receiptPath: string | null;
 };
 
 export type Summary = {

@@ -87,7 +87,8 @@ export const LoanScalarFieldEnum = {
   dueDate: 'dueDate',
   status: 'status',
   createdAt: 'createdAt',
-  repaidAt: 'repaidAt'
+  repaidAt: 'repaidAt',
+  receiptPath: 'receiptPath'
 } as const
 
 export type LoanScalarFieldEnum = (typeof LoanScalarFieldEnum)[keyof typeof LoanScalarFieldEnum]

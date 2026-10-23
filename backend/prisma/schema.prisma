@@ -25,6 +25,7 @@ model Loan {
   status     LoanStatus @default(PENDING)
   createdAt  DateTime   @default(now())
   repaidAt   DateTime?
+  receiptPath String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

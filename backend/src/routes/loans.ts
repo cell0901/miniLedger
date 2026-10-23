@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { authMiddleware } from "./main";
-import { addLoanSchema } from "../types";
-import { prisma } from "../lib/prisma"
+import { authMiddleware } from "./main.ts";
+import { addLoanSchema } from "../types.ts";
+import { prisma } from "../lib/prisma.ts"
 
 export const loanRouter = Router()
 

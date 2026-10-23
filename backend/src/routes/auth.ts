@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authScehma, verifyOtpSchema } from "../types";
-import { prisma } from "../lib/prisma"
+import { authScehma, verifyOtpSchema } from "../types.ts";
+import { prisma } from "../lib/prisma.ts"
 import jwt from "jsonwebtoken"
 
 export const authRouter = Router()
@@ -15,6 +15,7 @@ authRouter.post('/send-otp', (req, res) => {
       message: "wrong inputs"
     })
   }
+  console.log("sent otp hit after zod validation")
 
   // generate a random 100000 - 999999 otp
   const otp = Math.floor(100000 + Math.random() * 900000);
@@ -34,6 +35,7 @@ authRouter.post('/verify-otp', async (req, res) => {
       message: "wrong inputs"
     })
   }
+  console.log("verifyt otp hit after zod validation")
 
   const found = userOtps.get(data.number);
 

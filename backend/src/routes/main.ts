@@ -1,7 +1,9 @@
-import { NextFunction, Request, Response, Router } from "express";
-import { authRouter } from "./auth";
-import { loanRouter } from "./loans";
-import jwt, { JwtPayload } from "jsonwebtoken"
+import { Router } from "express";
+import type { NextFunction, Request, Response } from "express";
+import { authRouter } from "./auth.ts";
+import { loanRouter } from "./loans.ts";
+import jwt from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
 
 declare global {
   namespace Express {

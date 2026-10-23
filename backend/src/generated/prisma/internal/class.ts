@@ -12,7 +12,7 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "./prismaNamespace"
+import type * as Prisma from "./prismaNamespace.ts"
 
 
 const config: runtime.GetPrismaClientConfig = {
@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.10.1",
   "engineVersion": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id    String @id @default(uuid()) @db.Uuid\n  phone String @unique\n  loans Loan[]\n}\n\nmodel Loan {\n  id         String     @id @default(uuid()) @db.Uuid\n  userId     String     @db.Uuid\n  friendName String\n  amount     Decimal    @db.Decimal(12, 2)\n  dueDate    DateTime   @db.Date\n  status     LoanStatus @default(PENDING)\n  createdAt  DateTime   @default(now())\n  repaidAt   DateTime?\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nenum LoanStatus {\n  PENDING\n  REPAID\n}\n",
+  "inlineSchema": "generator client {\n  provider            = \"prisma-client\"\n  output              = \"../src/generated/prisma\"\n  moduleFormat        = \"esm\"\n  importFileExtension = \"ts\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id    String @id @default(uuid()) @db.Uuid\n  phone String @unique\n  loans Loan[]\n}\n\nmodel Loan {\n  id         String     @id @default(uuid()) @db.Uuid\n  userId     String     @db.Uuid\n  friendName String\n  amount     Decimal    @db.Decimal(12, 2)\n  dueDate    DateTime   @db.Date\n  status     LoanStatus @default(PENDING)\n  createdAt  DateTime   @default(now())\n  repaidAt   DateTime?\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nenum LoanStatus {\n  PENDING\n  REPAID\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},

@@ -6,8 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "contract:emit": "prisma contract emit",
-    "postinstall": "prisma skills sync || exit 0",
-    "dev": "tsx watch src/index.ts"
+    "dev": "node --watch src/index.ts",
+    "start": "node src/index.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -31,5 +32,6 @@
     "prisma": "^7.10.1",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3"
-  }
+  },
+  "type": "module"
 }
